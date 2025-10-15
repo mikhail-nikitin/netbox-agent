@@ -2,8 +2,7 @@ import logging
 import re as _re
 import subprocess as _subprocess
 import sys
-
-from netbox_agent.misc import is_tool
+from dataclasses import dataclass
 
 _handle_re = _re.compile("^Handle\\s+(.+),\\s+DMI\\s+type\\s+(\\d+),\\s+(\\d+)\\s+bytes$")
 _in_block_re = _re.compile("^\\t\\t(.+)$")
@@ -59,12 +58,45 @@ _str2type = {}
 for type_id, type_str in _type2str.items():
     _str2type[type_str] = type_id
 
+EMPTY_DMI_VALUES = [
+    "Default string",
+    "123456789",
+    "0123456789",
+    "None",
+    "Unspecified",
+    "0x00000000",
+    "Not Provided",
+    "Unknown",
+    "NO DIMM",
+    "No Module Installed",
+    "To be filled by O.E.M.",
+]
 
-def parse(output=None):
+
+@dataclass
+class DmiPath:
+    type_id: int
+    field_name: str
+
+_fru_to_dmi_path = {
+    'Chassis Type': DmiPath(_str2type['Chassis'], 'Type'),
+    'Chassis Part Number': DmiPath(_str2type['Chassis'], 'SKU Number'),
+    'Chassis Serial': DmiPath(_str2type['Chassis'], 'Serial Number'),
+    'Board Mfg': DmiPath(_str2type['Baseboard'], 'Manufacturer'),
+    'Board Product': DmiPath(_str2type['Baseboard'], 'Product Name'),
+    'Board Serial': DmiPath(_str2type['Baseboard'], 'Serial Number'),
+    'Product Manufacturer': DmiPath(_str2type['System'], 'Manufacturer'),
+    'Product Part Number': DmiPath(_str2type['System'], 'Product Name'),
+    'Product Serial': DmiPath(_str2type['System'], 'Serial Number'),
+}
+
+def parse(output=None, fru_overrides=None):
     """
     parse the full output of the dmidecode
     command and return a dic containing the parsed information
     """
+    if fru_overrides is None:
+        fru_overrides = {}
     if output:
         buffer = output
     else:
@@ -72,6 +104,14 @@ def parse(output=None):
     if isinstance(buffer, bytes):
         buffer = buffer.decode("utf-8")
     _data = _parse(buffer)
+
+    for fru_field_name, value in fru_overrides:
+        if fru_field_name not in _fru_to_dmi_path:
+            continue
+        dmi_path = _fru_to_dmi_path[fru_field_name]
+        dmi_field_value = _data[dmi_path.type_id].get(dmi_path.field_name)
+        if dmi_field_value is None or dmi_field_value in EMPTY_DMI_VALUES:
+            _data[dmi_path.type_id][dmi_path.field_name] = value
     return _data
 
 
