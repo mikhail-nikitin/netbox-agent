@@ -112,9 +112,7 @@ def parse(output=None, fru_overrides=None):
         if fru_field_name not in _fru_to_dmi_path:
             continue
         dmi_path = _fru_to_dmi_path[fru_field_name]
-        dmi_field_value = _data[dmi_path.type_id].get(dmi_path.field_name)
-        if dmi_field_value is None or dmi_field_value.lower() in EMPTY_DMI_VALUES:
-            _data[dmi_path.type_id][dmi_path.field_name] = value
+        _data[dmi_path.type_id][dmi_path.field_name] = value
     return _data
 
 
