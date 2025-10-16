@@ -2,7 +2,9 @@ import logging
 import re as _re
 import subprocess as _subprocess
 import sys
+
 from dataclasses import dataclass
+from netbox_agent.misc import is_tool
 
 _handle_re = _re.compile("^Handle\\s+(.+),\\s+DMI\\s+type\\s+(\\d+),\\s+(\\d+)\\s+bytes$")
 _in_block_re = _re.compile("^\\t\\t(.+)$")
