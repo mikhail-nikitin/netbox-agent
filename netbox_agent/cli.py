@@ -23,7 +23,7 @@ MANUFACTURERS = {
 
 
 def run(config):
-    fru_overrides = fru.parse(config)
+    fru_overrides = fru.parse()
     dmi = dmidecode.parse(output=None, fru_overrides=fru_overrides)
 
     if config.virtual.enabled or is_vm(dmi):
