@@ -1,6 +1,7 @@
 import sys
 from packaging import version
 import netbox_agent.dmidecode as dmidecode
+import netbox_agent.fru as fru
 from netbox_agent.config import config
 from netbox_agent.config import netbox_instance as nb
 from netbox_agent.logging import logging  # NOQA
@@ -22,7 +23,8 @@ MANUFACTURERS = {
 
 
 def run(config):
-    dmi = dmidecode.parse()
+    fru_overrides = fru.parse(config)
+    dmi = dmidecode.parse(output=None, fru_overrides=fru_overrides)
 
     if config.virtual.enabled or is_vm(dmi):
         if config.virtual.hypervisor:

@@ -2,6 +2,7 @@ import logging
 import re as _re
 import subprocess as _subprocess
 import sys
+import fru
 
 from dataclasses import dataclass
 from netbox_agent.misc import is_tool
@@ -60,7 +61,7 @@ _str2type = {}
 for type_id, type_str in _type2str.items():
     _str2type[type_str] = type_id
 
-EMPTY_DMI_VALUES = [
+EMPTY_DMI_VALUES = map(lambda x: x.lower(), [
     "Default string",
     "123456789",
     "0123456789",
@@ -72,7 +73,7 @@ EMPTY_DMI_VALUES = [
     "NO DIMM",
     "No Module Installed",
     "To be filled by O.E.M.",
-]
+])
 
 
 @dataclass
@@ -81,15 +82,15 @@ class DmiPath:
     field_name: str
 
 _fru_to_dmi_path = {
-    'Chassis Type': DmiPath(_str2type['Chassis'], 'Type'),
-    'Chassis Part Number': DmiPath(_str2type['Chassis'], 'SKU Number'),
-    'Chassis Serial': DmiPath(_str2type['Chassis'], 'Serial Number'),
-    'Board Mfg': DmiPath(_str2type['Baseboard'], 'Manufacturer'),
-    'Board Product': DmiPath(_str2type['Baseboard'], 'Product Name'),
-    'Board Serial': DmiPath(_str2type['Baseboard'], 'Serial Number'),
-    'Product Manufacturer': DmiPath(_str2type['System'], 'Manufacturer'),
-    'Product Part Number': DmiPath(_str2type['System'], 'Product Name'),
-    'Product Serial': DmiPath(_str2type['System'], 'Serial Number'),
+    fru.FIELD_CHASSIS_TYPE: DmiPath(_str2type['Chassis'], 'Type'),
+    fru.FIELD_CHASSIS_PART_NUMBER: DmiPath(_str2type['Chassis'], 'SKU Number'),
+    fru.FIELD_CHASSIS_SERIAL: DmiPath(_str2type['Chassis'], 'Serial Number'),
+    fru.FIELD_BOARD_MFG: DmiPath(_str2type['Baseboard'], 'Manufacturer'),
+    fru.FIELD_BOARD_PRODUCT: DmiPath(_str2type['Baseboard'], 'Product Name'),
+    fru.FIELD_BOARD_SERIAL: DmiPath(_str2type['Baseboard'], 'Serial Number'),
+    fru.FIELD_PRODUCT_MANUFACTURER: DmiPath(_str2type['System'], 'Manufacturer'),
+    fru.FIELD_PRODUCT_PART_NUMBER: DmiPath(_str2type['System'], 'Product Name'),
+    fru.FIELD_PRODUCT_SERIAL: DmiPath(_str2type['System'], 'Serial Number'),
 }
 
 def parse(output=None, fru_overrides=None):
@@ -112,7 +113,7 @@ def parse(output=None, fru_overrides=None):
             continue
         dmi_path = _fru_to_dmi_path[fru_field_name]
         dmi_field_value = _data[dmi_path.type_id].get(dmi_path.field_name)
-        if dmi_field_value is None or dmi_field_value in EMPTY_DMI_VALUES:
+        if dmi_field_value is None or dmi_field_value.lower() in EMPTY_DMI_VALUES:
             _data[dmi_path.type_id][dmi_path.field_name] = value
     return _data
 

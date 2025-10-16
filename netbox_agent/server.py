@@ -1,4 +1,5 @@
 import netbox_agent.dmidecode as dmidecode
+import netbox_agent.fru as fru
 from netbox_agent.config import config
 from netbox_agent.config import netbox_instance as nb
 from netbox_agent.hypervisor import Hypervisor
@@ -24,7 +25,8 @@ class ServerBase:
         if dmi:
             self.dmi = dmi
         else:
-            self.dmi = dmidecode.parse()
+            fru_overrides = fru.parse()
+            self.dmi = dmidecode.parse(output=None, fru_overrides=fru_overrides)
 
         self.baseboard = dmidecode.get_by_type(self.dmi, "Baseboard")
         self.bios = dmidecode.get_by_type(self.dmi, "BIOS")
