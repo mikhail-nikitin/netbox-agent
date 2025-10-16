@@ -2,7 +2,7 @@ import logging
 import re as _re
 import subprocess as _subprocess
 import sys
-import fru
+import netbox_agent.fru as fru
 
 from dataclasses import dataclass
 from netbox_agent.misc import is_tool
