@@ -24,6 +24,7 @@ def get_config():
     p.add_argument("-r", "--register", action="store_true", help="Register server to Netbox")
     p.add_argument("-u", "--update-all", action="store_true", help="Update all infos in Netbox")
     p.add_argument("-d", "--debug", action="store_true", help="Print debug infos")
+    p.add_argument("--allow-fru-overrides", action="store_true", help="Allow replacing DMI values with ones from IPMI FRU")
     p.add_argument("--update-network", action="store_true", help="Update network")
     p.add_argument("--update-inventory", action="store_true", help="Update inventory")
     p.add_argument("--update-location", action="store_true", help="Update location")
