@@ -108,7 +108,7 @@ def parse(output=None, fru_overrides=None):
         buffer = buffer.decode("utf-8")
     _data = _parse(buffer)
 
-    for fru_field_name, value in fru_overrides:
+    for fru_field_name, value in fru_overrides.items():
         if fru_field_name not in _fru_to_dmi_path:
             continue
         dmi_path = _fru_to_dmi_path[fru_field_name]
