@@ -23,6 +23,7 @@ def parse(output=None):
     if isinstance(buffer, bytes):
         buffer = buffer.decode("utf-8")
     _data = _parse(buffer)
+    return _data
 
 def _execute_cmd():
     if not is_tool("ipmitool"):
